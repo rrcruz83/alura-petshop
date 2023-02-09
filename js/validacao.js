@@ -41,13 +41,29 @@ const mensagensDeErro = {
         valueMissing: 'O campo de CPF não pode estar vazio',
         customError: 'O CPF digitado não é valido.'
     },
-
-
+    cep: {
+        valueMissing: 'O campo de CEP não pode estar vazio.',
+        patternMismatch: 'O CEP digitado não é válido.',
+        customError: 'Não foi possivel buscar o CEP informado'
+    },
+    logradouro: {
+        valueMissing: 'O campo de logradouro não pode estar vazio.',
+        patternMismatch: 'O logradouro digitado não é válido.'
+    },
+    cidade: {
+        valueMissing: 'O campo de cidade não pode estar vazio.',
+        patternMismatch: 'O cidade digitado não é válido.'
+    },
+    estado: {
+        valueMissing: 'O campo de Estado não pode estar vazio.',
+        patternMismatch: 'O Estado digitado não é válido.'
+    },
 }
 
 const validadores = {
     dataNascimento:input => validaDataNascimento(input),
-    cpf: input => validaCPF(input)
+    cpf: input => validaCPF(input),
+    cep: input => recuperarCEP(input)
 }
 
 function mostraMensagemDeErro(tipoDeInput, input) {
@@ -146,3 +162,41 @@ function confirmaDigito(soma) {
     return 11 - (soma % 11)
 }
 
+function recuperarCEP(input) {
+    const cep = input.value.replace(/\D/g, '')
+    const url = `http://viacep.com.br/ws/${cep}/json/`
+    const options = {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+            'content-type': 'application/json;charset=utf-8'
+        }
+    }
+
+    if(!input.validity.patternMismatch && !input.validity.valueMissing) {
+        fetch(url, options).then(
+            response => response.json()
+        ).then(
+            data => {
+                if(data.erro) {
+                    input.setCustomValidity("Não foi possível buscar o CEP informado")
+                    return
+                }
+            input.setCustomValidity("")
+            preencheCamposComCEP(data)
+            return
+            }
+        )
+    }
+
+}
+
+function preencheCamposComCEP(data) {
+    const logradouro = document.querySelector('[data-tipo="logradouro"]')
+    const cidade = document.querySelector('[data-tipo="cidade"]')
+    const estado = document.querySelector('[data-tipo="estado"]')
+    //console.log(data)
+    logradouro.value = data.logradouro 
+    cidade.value = data.localidade
+    estado.value = data.uf
+}
