@@ -58,6 +58,9 @@ const mensagensDeErro = {
         valueMissing: 'O campo de Estado não pode estar vazio.',
         patternMismatch: 'O Estado digitado não é válido.'
     },
+    preco: {
+        valueMissing: 'O campo de preço não pode estar vazio.'
+    }
 }
 
 const validadores = {
